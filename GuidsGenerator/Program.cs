@@ -5,20 +5,32 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
 
-        NotifyIcon trayIcon = new NotifyIcon
+        var trayIcon = new NotifyIcon
         {
-            Icon =  new Icon("Resources/favicon.ico"),
+            Icon = new Icon("Resources/favicon.ico"),
             Visible = true,
             Text = "GUID Copier - Click to generate a GUID"
         };
-
-        trayIcon.Click += (sender, e) =>
-        {
-            string newGuid = Guid.NewGuid().ToString();
-            Clipboard.SetText(newGuid);
-            ShowNotification(trayIcon, "New GUID", $"GUID copied to clipboard:\n{newGuid}");
-        };
         
+        var contextMenu = new ContextMenuStrip();
+        
+        contextMenu.Items.Add("Exit", null, (sender, e) =>
+        {
+            trayIcon.Visible = false;
+            Application.Exit();
+        });
+
+        trayIcon.ContextMenuStrip = contextMenu;
+        trayIcon.MouseClick += (sender, e) =>
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                string newGuid = Guid.NewGuid().ToString();
+                Clipboard.SetText(newGuid);
+                ShowNotification(trayIcon, "New GUID", $"GUID copied to clipboard:\n{newGuid}");
+            }
+        };
+
         Application.Run();
 
         trayIcon.Dispose();

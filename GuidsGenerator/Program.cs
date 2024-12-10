@@ -1,5 +1,3 @@
-namespace GuidsGenerator;
-
 internal static class Program
 {
     [STAThread]
@@ -7,24 +5,29 @@ internal static class Program
     {
         ApplicationConfiguration.Initialize();
 
-        string newGuid = Guid.NewGuid().ToString();
+        NotifyIcon trayIcon = new NotifyIcon
+        {
+            Icon =  new Icon("Resources/favicon.ico"),
+            Visible = true,
+            Text = "GUID Copier - Click to generate a GUID"
+        };
 
-        Clipboard.SetText(newGuid);
+        trayIcon.Click += (sender, e) =>
+        {
+            string newGuid = Guid.NewGuid().ToString();
+            Clipboard.SetText(newGuid);
+            ShowNotification(trayIcon, "New GUID", $"GUID copied to clipboard:\n{newGuid}");
+        };
+        
+        Application.Run();
 
-        ShowNotification("New GUID", $"GUID copied to clipboard:\n{newGuid}");
+        trayIcon.Dispose();
     }
 
-    private static void ShowNotification(string title, string message)
+    private static void ShowNotification(NotifyIcon trayIcon, string title, string message)
     {
-        using (var notifyIcon = new NotifyIcon())
-        {
-            notifyIcon.Visible = true;
-            notifyIcon.Icon = SystemIcons.Information;
-            notifyIcon.BalloonTipTitle = title;
-            notifyIcon.BalloonTipText = message;
-            notifyIcon.ShowBalloonTip(3000);
-     
-            Thread.Sleep(3000);
-        }
+        trayIcon.BalloonTipTitle = title;
+        trayIcon.BalloonTipText = message;
+        trayIcon.ShowBalloonTip(3000);
     }
 }
